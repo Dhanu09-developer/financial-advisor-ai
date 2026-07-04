@@ -1,7 +1,7 @@
 import streamlit as st
 import yfinance as yf
 
-st.title("💰 Stock Price ChatBot")
+st.title("Stock Price ChatBot")
 
 symbol = st.text_input("Enter Stock Symbol", "RELIANCE.NS")
 
@@ -15,7 +15,7 @@ if symbol:
         st.success(f"Current Price: ₹{current_price:.2f}")
 
     else:
-        st.warning("No data found for the given symbol.")
+        st.warning("Error: No data found for the given symbol.")
 
     history = stock.history(period="1mo")
     st.subheader("Last 1 Month Stock Performance")
