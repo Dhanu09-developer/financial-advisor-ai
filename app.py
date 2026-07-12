@@ -1,5 +1,7 @@
 import streamlit as st
 import yfinance as yf
+import feedparser
+from urllib.parse import quote
 
 st.title("Stock Price ChatBot")
 
@@ -56,7 +58,10 @@ if symbol:
             st.metric("P/E Ratio", pe_ratio)
 
         with col2:
-            st.metric("Dividend Yield", f"{dividend:.2f}%")
+            if dividend != "N/A" and dividend is not None:
+                st.metric("Dividend Yield", f"{dividend*100:.2f}%")
+            else:
+                st.metric("Dividend Yield", "N/A")
             
 
         st.write("Market Cap:", f"{market_cap}")
@@ -129,11 +134,26 @@ if symbol:
             st.warning(risk)
         else:
             st.error(risk)  
+
+        st.write(f"Volatility Score: {volatility:.2f}")
         
 
         st.subheader("Last 1 Month Stock Performance")
 
         st.line_chart(history['Close'])
+
+        # Latest Stock News By using feedparser
+        st.subheader("Latest Stock News")
+        news_url = f"https://news.google.com/rss/search?q={quote(company_name)}"
+
+        feed = feedparser.parse(news_url)
+
+        if feed.entries:
+            for entry in feed.entries[:5]:
+                st.write("•", entry.title)      
+        else:
+            st.write("No recent news found for this company.")
+        
 
     else:
         st.warning("Error: No data found for the given symbol.")
