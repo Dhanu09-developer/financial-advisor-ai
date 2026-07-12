@@ -2,6 +2,7 @@ import streamlit as st
 import yfinance as yf
 import feedparser
 from urllib.parse import quote
+from textblob import TextBlob
 
 st.title("Stock Price ChatBot")
 
@@ -35,7 +36,7 @@ if symbol:
         score = 0       # score will be calculated based on various factors afterwards
 
         # Company Information
-        company_name = info.get("longName")
+        company_name = info.get("longName", symbol)
         sector = info.get("sector")
         industry = info.get("industry")
 
@@ -86,7 +87,7 @@ if symbol:
 
 
         # Dividend Score 
-        if dividend != "N/A":
+        if dividend is not None and dividend != "N/A":
             if dividend > 0:
                 score += 30
             
@@ -148,12 +149,30 @@ if symbol:
 
         feed = feedparser.parse(news_url)
 
+
+        # Sentiment Analysis 
+        sentiment_score = 0
+
         if feed.entries:
             for entry in feed.entries[:5]:
-                st.write("•", entry.title)      
+                st.write("•", entry.title) 
+
+                analysis = TextBlob(entry.title)
+
+                sentiment_score += analysis.sentiment.polarity    
+
+            avg_sentiment = sentiment_score / len(feed.entries[:5]) 
+            # st.write(f"Average Sentiment Score: {avg_sentiment:.2f}")
         else:
             st.write("No recent news found for this company.")
         
+        st.subheader("News Sentiment Analysis")
+        if avg_sentiment > 0.1:
+            st.success("🟢 Positive News Sentiment")
+        elif avg_sentiment < -0.1:
+            st.error("🔴 Negative News Sentiment")
+        else:
+            st.info("⚪ Neutral News Sentiment")  
 
     else:
         st.warning("Error: No data found for the given symbol.")
