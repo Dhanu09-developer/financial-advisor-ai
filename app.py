@@ -110,6 +110,27 @@ if symbol:
             
 
         history = stock.history(period="1mo")
+        
+        # Volatility Score for Risk Analysis
+        volatility = history["Close"].std()
+
+        if volatility < 20:
+            risk = "Low Risk"
+        elif volatility < 50:
+            risk = "Medium Risk"
+        else:
+            risk = "High Risk"
+
+        
+        st.subheader("Risk Analysis")
+        if risk == "Low Risk":
+            st.success(risk)
+        elif risk == "Medium Risk":
+            st.warning(risk)
+        else:
+            st.error(risk)  
+        
+
         st.subheader("Last 1 Month Stock Performance")
 
         st.line_chart(history['Close'])
