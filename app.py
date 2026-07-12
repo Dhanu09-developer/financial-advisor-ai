@@ -13,7 +13,7 @@ if symbol:
     info = stock.info
 
     
-    data = stock.history(period="1wk")
+    data = stock.history(period="ytd")
     if not data.empty:
 
         # Current Price
@@ -71,19 +71,25 @@ if symbol:
 
         # Investment Recommendation + score
         recommendation = "N/A"
+
+        explanation = []    # Explanation Variable
+
         if pe_ratio != "N/A":
 
             if pe_ratio < 20:
                 recommendation = "BUY"
                 score += 40
+                explanation.append("P/E ratio is low, indicating the stock may be undervalued")
 
             elif pe_ratio < 35:
                 recommendation = "HOLD"
                 score += 25
+                explanation.append("P/E ratio is moderate, indicating the stock is fairly valued")
 
             else:
                 recommendation = "SELL"
                 score += 10
+                explanation.append("P/E ratio is high, indicating the stock may be overvalued")
 
 
         # Dividend Score 
@@ -95,8 +101,10 @@ if symbol:
         # Market Cap Score
         if market_cap_raw > 100000000000:
             score += 30
+            explanation.append("Large market cap indicates a stable, established company")
         else:
             score += 15
+            explanation.append("Smaller market cap indicates higher growth potential but also higher risk")
 
         # Displaying score
         st.subheader("Financial Health Score")
@@ -113,6 +121,10 @@ if symbol:
             st.error("SELL")
         else:
             st.info("Recommendation Unavailable")
+
+        st.subheader("AI Explanation")
+        for exp in explanation:
+            st.write("- ", exp)
             
 
         history = stock.history(period="1mo")
@@ -122,10 +134,13 @@ if symbol:
 
         if volatility < 20:
             risk = "Low Risk"
+            explanation.append("Low volatility indicates stable stock performance")
         elif volatility < 50:
             risk = "Medium Risk"
+            explanation.append("Moderate volatility indicates some risk")
         else:
             risk = "High Risk"
+            explanation.append("High volatility indicates high risk")
 
         
         st.subheader("Risk Analysis")
