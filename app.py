@@ -19,14 +19,18 @@ if symbol:
         st.metric("Current Price", f"₹{current_price:.2f}")
 
         # Market Cap
-        market_cap = info.get("marketCap", 0)
-        if market_cap:
-            market_cap = f"₹{market_cap/10000000000:.2f} Trillion"
+        market_cap_raw = info.get("marketCap", 0)   # Numeric value for calculations
+
+        if market_cap_raw:
+            market_cap = f"₹{market_cap_raw/10000000000:.2f} Trillion"  # formatted text
+        else:
+            market_cap = "N/A"
 
         pe_ratio = info.get("trailingPE", "N/A")
         high_52 = info.get("fiftyTwoWeekHigh", "N/A")
         low_52 = info.get("fiftyTwoWeekLow", "N/A")
         dividend = info.get("dividendYield", "N/A")
+        score = 0       # score will be calculated based on various factors afterwards
 
         # Company Information
         company_name = info.get("longName")
@@ -52,25 +56,47 @@ if symbol:
             st.metric("P/E Ratio", pe_ratio)
 
         with col2:
-            st.metric("Dividend Yield", f"{dividend*100:.2f}%")
+            st.metric("Dividend Yield", f"{dividend:.2f}%")
             
 
         st.write("Market Cap:", f"{market_cap}")
         st.write("52 Week High:", high_52)
         st.write("52 Week Low:", low_52)
 
-        # Investment Recommendation
+        # Investment Recommendation + score
         recommendation = "N/A"
         if pe_ratio != "N/A":
 
             if pe_ratio < 20:
                 recommendation = "BUY"
+                score += 40
 
             elif pe_ratio < 35:
                 recommendation = "HOLD"
+                score += 25
 
             else:
                 recommendation = "SELL"
+                score += 10
+
+
+        # Dividend Score 
+        if dividend != "N/A":
+            if dividend > 0:
+                score += 30
+            
+
+        # Market Cap Score
+        if market_cap_raw > 100000000000:
+            score += 30
+        else:
+            score += 15
+
+        # Displaying score
+        st.subheader("Financial Health Score")
+        st.progress(score)
+        st.write(f"Score: {score}/100")
+
 
         st.subheader("Investment Recommendation")
         if recommendation == "BUY":
